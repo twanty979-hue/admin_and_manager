@@ -1,0 +1,5 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ส่วนที่เหลือปล่อยไว้ หรือลบทิ้งให้เกลี้ยงก็ได้ครับ ให้เหลือแค่ 3 บรรทัดบนก็พอ */
