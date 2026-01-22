@@ -3,6 +3,23 @@
 
 import { supabaseAdmin } from "../lib/supabase/admin";
 
+// ✅ แก้ไข Interface ให้ตรงกับสถาปัตยกรรมข้อมูลที่ดึงมาจริง
+export interface AdminStockData {
+  id: string;
+  qty: number;
+  updated_at: string;
+  products: {
+    name: string;
+    sku: string;
+    barcode: string;
+    unit: string;
+  } | null;
+  branches: {
+    branch_name: string;
+    branch_code: string;
+  } | null;
+}
+
 export async function getAllInventory(query: string = "") {
   try {
     const dbQuery = supabaseAdmin
@@ -13,7 +30,7 @@ export async function getAllInventory(query: string = "") {
         updated_at,
         products:product_id (name, sku, barcode, unit),
         branches:branch_id (branch_name, branch_code)
-      `, { count: "exact" }) // เพิ่มการนับจำนวนแถว
+      `, { count: "exact" })
       .order("updated_at", { ascending: false });
 
     if (query) {
@@ -22,13 +39,11 @@ export async function getAllInventory(query: string = "") {
 
     const { data, error, count } = await dbQuery;
 
-    // ✅ เพิ่ม Log เพื่อดูผลลัพธ์ใน Terminal ของคุณ
-    console.log("Admin Stock Check:", { dataLength: data?.length, error, count });
-
     if (error) throw error;
     
+    // ✅ Cast ข้อมูลให้ตรงกับ Interface ที่เราแก้ไข
     return { 
-      data: data as unknown as AdminStockData[], 
+      data: (data as any) as AdminStockData[], 
       totalCount: count || 0 
     };
   } catch (error: any) {
