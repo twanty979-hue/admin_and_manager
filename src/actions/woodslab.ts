@@ -31,30 +31,38 @@ export async function uploadFile(formData: FormData) {
   return { success: true }
 }
 
-// ✅ 2. ดึงสินค้าทั้งหมด (List Page ใช้ตัวนี้)
-export async function getProducts() {
+export async function getProducts(category?: string) {
   const supabase = await createClient()
   
-  const { data, error } = await supabase
+  // เริ่มต้น Query
+  let query = supabase
     .from(TABLE_NAME)
     .select('*')
     .order('created_at', { ascending: false })
+
+  // ถ้าส่ง category มา ให้กรอง (Query แยกจริง)
+  if (category) {
+    query = query.eq('category_id', category)
+  }
+
+  const { data, error } = await query
 
   if (error) {
     console.error("Error fetching products:", error)
     return { data: [], error: error.message }
   }
 
-  // แปลง Path เป็น Full URL
+  // ... (โค้ดแปลง URL รูปภาพ เหมือนเดิม) ...
   const processedData = data.map((item) => {
+    // ... (logic เดิม)
     let publicUrl = null
     if (item.image_url) {
-        if(item.image_url.startsWith('http')) {
-            publicUrl = item.image_url
-        } else {
-            const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(item.image_url)
-            publicUrl = data.publicUrl
-        }
+       if(item.image_url.startsWith('http')) {
+           publicUrl = item.image_url
+       } else {
+           const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(item.image_url)
+           publicUrl = data.publicUrl
+       }
     }
     return { ...item, image_url: publicUrl }
   })
